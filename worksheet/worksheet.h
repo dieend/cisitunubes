@@ -8,10 +8,7 @@
 enum tipe {
 	EMPTY, REAL, KALIMAT, FORMULA, INTEGER, BOOLEAN, FAIL
 };
-
-
-typedef struct tcell * addressCell;
-typedef struct tcell{
+typedef struct {
 	union {
 		double REAL;
 		char KALIMAT[100];
@@ -20,18 +17,24 @@ typedef struct tcell{
 		boolean BOOLEAN;
 	};
 	enum tipe tipeData;
+} value;
+
+
+typedef struct tcell * addressCell;
+typedef struct tcell{
+	value nilai;
 	addressCell NextRow;
 	addressCell NextCol;
 } cell;
 
 /** Selektor Cell **/
 /* c bertipe address Cell */
-#define Tipe(c) (c)->tipeData
-#define Real(c) (c)->REAL
-#define Formula(c) (c)->FORMULA
-#define Integer(c) (c)->INTEGER
-#define Kalimat(c) (c)->KALIMAT
-#define Boolean(c) (c)->BOOLEAN
+#define Tipe(c) (c)->nilai.tipeData
+#define Real(c) (c)->nilai.REAL
+#define Formula(c) (c)->nilai.FORMULA
+#define Integer(c) (c)->nilai.INTEGER
+#define Kalimat(c) (c)->nilai.KALIMAT
+#define Boolean(c) (c)->nilai.BOOLEAN
 #define NextR(c) (c)->NextRow
 #define NextC(c) (c)->NextCol
 
@@ -62,9 +65,16 @@ void inverse(char inver_a[],int j);
 char * indeksKolom(int n);
 int nomorKolom(char kolom[]);
 boolean isArea(char Cek[]);
+boolean isIndeks(char Cek[]);
 area makeArea(char Area[]);
 void makeEmpty(area Area);
+void makeIndeks(char tmp[], int * baris, int * kolom);
 void printSheet(area Area);
 void insert(addressCell Cell, char isi[]);
-
+value doSUM(area Area);
+value doCOUNT(area Area) ;
+value doAVERAGE(area Area);
+value doSTDEV(area Area) ;
+value doMAX(area Area) ;
+value doMIN(area Area);
 #endif

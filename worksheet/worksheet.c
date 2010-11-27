@@ -174,7 +174,31 @@ boolean isArea(char Cek[]) {
 	}
 	return false;
 }
+boolean isIndeks(char Cek[]){
+	int i = 0,len;
+	len = sstrlen(Cek);
+	for (i=0; i<len && ('A'<=Cek[i] && Cek[i] <= 'Z'); i++);
+	for (i=i; i<len && ('0'<=Cek[i] && Cek[i] <='9'); i++);
+	return (i==len);
+}
 
+void makeIndeks(char tmp[], int * baris, int * kolom) {
+	int i=0,j=0;
+	char ckolom[MAXSTRINGLENGTH], cbaris[MAXSTRINGLENGTH];
+	while ('A'<= tmp[i] && tmp[i] <='Z') {
+		ckolom[j] = tmp[i];
+		i++; j++;
+	}
+	ckolom[j] = '\0';
+	j = 0;
+	while ('0'<= tmp[i] && tmp[i] <='9') {
+		cbaris[j] = tmp[i];
+		i++; j++;
+	}
+	cbaris[j] = '\0';
+	*kolom = nomorKolom(ckolom);
+	sscanf(cbaris, "%d",baris);
+}
 area makeArea(char tmp[]) {
 	area Area;
 	char cArea[50];
@@ -221,6 +245,8 @@ void printSheet(area Area) {
 
 	int i,j;
 	addressCell Cell;
+	ekspresi Ekspresi;
+//	char tmp[MAXSTRINGLENGTH];
 	printf("%-10s","");
 	for (i=Area.cUL; i<=Area.cLR; i++) {
 		printf("%-10s", indeksKolom(i));
@@ -229,6 +255,7 @@ void printSheet(area Area) {
 	for (i=Area.rUL; i<=Area.rLR; i++) {
 		printf("%-10d", i);
 		for (j=Area.cUL; j<=Area.cLR;j++) {
+			countStack = 0;
 			Cell = getCell(i,j);
 			if (Tipe(Cell) == KALIMAT) {
 				printf("%-10s", Kalimat(Cell)+1);
@@ -240,13 +267,19 @@ void printSheet(area Area) {
 				printf("%-10.2lf", Real(Cell));
 			} else
 			if (Tipe(Cell) == FORMULA) {
-				printf("%-10s", Formula(Cell));
+//				sstrcpy(tmp,Formula(Cell));
+				Ekspresi = makeEkspresi(Formula(Cell)+1);
+				if (Ekspresi.error) printf(ERROR); else
+				if (Ekspresi.token[0][0] =='\'')
+					printf("%-10s",Ekspresi.token[0]+1);
+				else
+					printf("%-10s",Ekspresi.token[0]);
 			} else          
 			if (Tipe(Cell) == BOOLEAN) {
 				printf("%-10s", Boolean(Cell)?"TRUE":"FALSE");
 			} else 
 			if (Tipe(Cell) == EMPTY) {
-				printf("%-10s","##");          
+				printf("%-10s","");          
 			}
 			
 		}
@@ -285,4 +318,85 @@ void insert(addressCell Cell, char isi[]) {
 	} else {
 		printf("Data tidak valid\n");
 	}
+}
+
+value doSUM(area Area) { 
+	int iSum = 0,i,j;
+	double dSum = 0, tmp = 0;
+	value Value;
+	addressCell Cell;
+	ekspresi Ekspresi;
+	boolean isDouble = false;
+	Value.tipeData = EMPTY;
+	
+	for (i=Area.rUL; i<=Area.rLR && Value.tipeData != FAIL; i++) {
+		for (j=Area.cUL; j<=Area.cLR && Value.tipeData != FAIL; j++) {
+			Cell = getCell(i,j);
+			if (Tipe(Cell) == INTEGER) {
+				iSum += Integer(Cell);
+			} else if (Tipe(Cell) == REAL) {
+				dSum += Real(Cell);
+				isDouble = true;
+			} else if (Tipe(Cell) == FORMULA) {
+				Ekspresi = makeEkspresi(Formula(Cell)+1);
+				sscanf(Ekspresi.token[0],"%lf",&tmp);
+				dSum += tmp;
+				isDouble = true;
+			} else if (Tipe(Cell) != EMPTY) {
+				Value.tipeData = FAIL;
+			}
+		}
+	}
+	if (Value.tipeData!=FAIL) Value.tipeData = KALIMAT;
+	if (isDouble)
+		sprintf(Value.KALIMAT,"%.2lf",(double) iSum + dSum);
+	else
+		sprintf(Value.KALIMAT,"%d",iSum);
+	return Value;
+}
+
+value doCOUNT(area Area) { 
+	value Value;
+	addressCell Cell;
+	int Count = 0,i,j;
+	Value.tipeData = EMPTY;
+	for (i=Area.rUL; i<=Area.rLR && Value.tipeData != FAIL; i++) {
+		for (j=Area.cUL; j<=Area.cLR && Value.tipeData != FAIL; j++) {
+			Cell = getCell(i,j);
+			if (Tipe(Cell) != EMPTY) {
+				Count+=1;
+			}
+		}
+	}
+	if (Value.tipeData!=FAIL) Value.tipeData = KALIMAT;
+	sprintf(Value.KALIMAT,"%d",Count);
+	return Value;
+}
+
+value doAVERAGE(area Area) { 
+	value Value;
+	double sum;
+	int Count;
+	Value = doSUM(Area);
+	if (Value.tipeData!=FAIL) {
+		sscanf(Value.KALIMAT,"%lf",&sum);
+		Value = doCOUNT(Area);
+		sscanf(Value.KALIMAT,"%d",&Count);
+		sprintf(Value.KALIMAT,"%.3lf",sum/(double)Count) ;
+	}
+	return Value;
+}
+
+value doSTDEV(area Area) { 
+	value Value;
+	return Value;
+}
+
+value doMAX(area Area) { 
+	value Value;
+	return Value;
+}
+value doMIN(area Area) { 
+	value Value;
+	return Value;
 }

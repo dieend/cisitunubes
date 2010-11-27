@@ -1,6 +1,6 @@
 #include "files.h"
 
-char  pathFile[MAXSTRINGLENGTH];
+char pathFile[MAXSTRINGLENGTH];
 
 boolean adaKoma(char cek[]) {
 	int len = sstrlen(cek);
@@ -51,6 +51,7 @@ void doModusFile(char path[]){
 
 void Remove(command Command){
 	char tmp[MAXSTRINGLENGTH];
+	sstrcpy(tmp,Command.param[1]);
 	area Area;
 	Area = makeArea(tmp);
 	makeEmpty(Area);
@@ -104,28 +105,19 @@ void Display(command Command){
 }
 
 void Write(command Command){
-	char ckolom[20],cbaris[20];
-	int baris,kolom,i,j;
+	int baris,kolom;
 	addressCell Cell;
-	i=0,j=0;
-	while ('A'<= Command.param[1][i] && Command.param[1][i] <='Z') {
-		ckolom[j] = Command.param[1][i];
-		i++; j++;
-	}
-	ckolom[j] = '\0';
-	j = 0;
-	while ('0'<= Command.param[1][i] && Command.param[1][i] <='9') {
-		cbaris[j] = Command.param[1][i];
-		i++; j++;
-	}
-	cbaris[j] = '\0';
-	kolom = nomorKolom(ckolom);
-	sscanf(cbaris, "%d",&baris);
+	makeIndeks(Command.param[1],&baris,&kolom);
 	Cell = getCell(baris,kolom);
 	insert(Cell, Command.param[2]);
 }
 
 void Evaluate(command Command){
 	ekspresi Ekspresi;
-	makeEkspresi(&Ekspresi,Command.param[0]+1);
+	Ekspresi = makeEkspresi(Command.param[0]+1);
+	countStack = 0;
+	if (Ekspresi.error) 
+		printf(ERROR);
+	else
+		printf("%s\n",Ekspresi.token[0]);
 }

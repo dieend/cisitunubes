@@ -21,12 +21,18 @@ command readCommand() {
 		}
 	} else {
 		while (sstrcmp(tmp,"#")) {
-			Command.length++;
-			sstrcpy(Command.param[i++], tmp);
-			scanf("%s",tmp);
-			
+			if (Command.param[i-1][0] == '=') {
+				sstrcat(Command.param[i-1], tmp);
+				scanf("%s",tmp);
+			} else {
+				Command.length++;
+				sstrcpy(Command.param[i++], tmp);
+				scanf("%s",tmp);
+			}
 		}
 	}
+	Command.length-=1;
+//	tulisCommand(Command);
 	return Command;
 }
 
@@ -50,7 +56,14 @@ int processCommandFile(command Command) {
 	if (!sstrcmp(Command.param[0],"close")) return 0; else
 	if (!sstrcmp(Command.param[0],"write")) Write(Command); else
 	if (!sstrcmp(Command.param[0],"remove")) Remove(Command); else
-	if (Command.param[0][1] == '=') Evaluate(Command); else
+	if (Command.param[0][0] == '=') Evaluate(Command); else
 	printf("Invalid Command!\n");
 	return 1;
+}
+
+void tulisCommand(command Command) {
+	int i;
+	for (i=0; i<Command.length; i++) {
+		printf("%s\n",Command.param[i]);
+	}
 }

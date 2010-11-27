@@ -1,5 +1,6 @@
 #ifndef command_H
 #define command_H
+
 #include "boolean.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,5 +29,5 @@ int processCommandDocument(command Command);
 int processCommandFile(command Command);
 /* Memproses Command untuk modus File */
 
-
+void tulisCommand(command Command);
 #endif

@@ -5,4 +5,5 @@ gcc -o "tes" main.c \
  kata/kata.c \
  worksheet/worksheet.c \
  ekspresi/ekspresi.c \
- -Wall
+ ekspresi/fungsi/dodo.c \
+ -Wall -lm
